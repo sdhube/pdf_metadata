@@ -31,11 +31,11 @@ NS = {
 # Mapping of PdfManifestEntry fields to PDF metadata keys
 # Fields that support string values in both legacy and XMP formats
 MANIFEST_TO_PDF_FIELDS = {
-    "title": "dc:title",
-    "author": "dc:creator",
-    "isbn": "dc:identifier",
-    "year": "dc:date",
-    "name": "dc:coverage",
+    "title": "title",
+    "author": "author",
+    "isbn": "subject",
+    "year": "creationDate",
+    "name": "producer",
 }
 
 
@@ -170,12 +170,13 @@ def pdf_update_metadata(p: PdfPath, ext_meta):
             if value:
                 metadata_dict[field_name] = value
 
-        # Update legacy Document Information Dictionary
+        # Update legacy Document Information Dictionary with all matching fields
         meta = doc.metadata
         meta["title"] = metadata_dict.get("title", "")
         meta["author"] = metadata_dict.get("author", "")
         meta["subject"] = metadata_dict.get("isbn", "")
-        meta["keywords"] = f"{metadata_dict.get('year', '')},{metadata_dict.get('name', '')}"
+        meta["creationDate"] = metadata_dict.get("year", "")
+        meta["producer"] = metadata_dict.get("name", "")
         doc.set_metadata(meta)
 
         # Update XMP metadata
