@@ -153,6 +153,9 @@ def create_xmp(metadata_dict):
 
     return xmp
 
+#----------------------------------------------------------------------------
+# public functions
+#----------------------------------------------------------------------------
 
 def pdf_update_metadata(p: PdfPath, ext_meta):
     """Update PDF metadata with all matching fields from PdfManifestEntry.
