@@ -29,7 +29,9 @@ class PdfPath:
     def from_pdf_path(cls, pdf_path: Path | str) -> PdfPath:
         cls.DIR_TMPS.mkdir(parents=True, exist_ok=True)
         cls.DIR_TMPM.mkdir(parents=True, exist_ok=True)
-        return cls(pdf_path)
+        p = PurePosixPath(pdf_path)
+        name = p.name
+        return cls(name) 
 
     @property
     def path(self) -> Path:

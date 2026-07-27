@@ -2,6 +2,7 @@ from pathlib import Path
 
 import click
 
+from logger import logger
 from pdf_names_conversion import PdfPath
 from pdf_sanitize_info import del_info, pdf_update_metadata
 from PdfManifestEntry import PdfManifestEntry
@@ -12,9 +13,11 @@ from PdfManifestEntry import PdfManifestEntry
 # --------------------------------------------
 
 
-def single_pdf_action_with_path(pdf_path, entry: PdfManifestEntry, sanitize_info=False):
+def single_pdf_info_action_with_path(pdf_path, entry: PdfManifestEntry, sanitize_info=False):
+    logger.info("enter single_pdf_info_action_with_path")
     if not Path(pdf_path).exists():
         return f"pdf not found {str(pdf_path)}"
+
     p: PdfPath = PdfPath(pdf_path)
     if sanitize_info:
         del_info(p)
@@ -39,7 +42,7 @@ def main(pdf_path: str, sanitize_info: bool) -> None:
     entry.author = "test author"
     entry.isbn = "123456"
     entry.title = "test title"
-    single_pdf_action_with_path(pdf_path, entry, sanitize_info=sanitize_info)
+    single_pdf_info_action_with_path(pdf_path, entry, sanitize_info=sanitize_info)
 
 
 if __name__ == "__main__":
