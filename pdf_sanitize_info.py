@@ -9,7 +9,7 @@ from pdf_names_conversion import PdfPath
 def del_info(p: PdfPath):
     with pikepdf.open(p.path_sanitized_tmp) as doc:
         # Remove legacy Document Information dictionary
-        doc.docinfo.clear()
+        doc.docinfo = pikepdf.Dictionary()
 
         # Remove XMP metadata stream
         if "/Metadata" in doc.catalog:
