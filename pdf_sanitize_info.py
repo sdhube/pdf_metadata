@@ -1,13 +1,12 @@
 import fitz
 from lxml import etree
 
-from pdf_names_conversion import PdfPath
 from pdf_actions_file import save_tmp_mv_on_source
+from pdf_names_conversion import PdfPath
 
 
 def del_info(p: PdfPath):
     with fitz.open(p.path_sanitized_tmp) as doc:
-
         # Remove legacy Document Information dictionary
         doc.set_metadata({})
 
@@ -16,7 +15,7 @@ def del_info(p: PdfPath):
 
         # Save with garbage collection to remove unreferenced objects
         doc.save(
-            p.path_sanitized_info,
+            p.path_sanitized_info_tmp,
             garbage=4,
             clean=True,
         )
@@ -41,7 +40,7 @@ MANIFEST_TO_PDF_FIELDS = {
 
 def update_xmp(xmp, metadata_dict):
     """Update XMP metadata with multiple fields from manifest.
-    
+
     Args:
         xmp: XMP string to update
         metadata_dict: Dictionary of field_name -> value pairs to set
@@ -102,7 +101,7 @@ def update_xmp(xmp, metadata_dict):
 
 def create_xmp(metadata_dict):
     """Create new XMP metadata with fields from manifest.
-    
+
     Args:
         metadata_dict: Dictionary of field_name -> value pairs
     """
@@ -112,7 +111,7 @@ def create_xmp(metadata_dict):
     year = metadata_dict.get("year", "")
     name = metadata_dict.get("name", "")
 
-    xmp = f"""<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
+    xmp = """<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/">
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 <rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/">"""
@@ -153,19 +152,20 @@ def create_xmp(metadata_dict):
 
     return xmp
 
-#----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 # public functions
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
 
 def pdf_update_metadata(p: PdfPath, ext_meta):
     """Update PDF metadata with all matching fields from PdfManifestEntry.
-    
+
     Args:
         p: PdfPath object with file paths
         ext_meta: PdfManifestEntry object with metadata to apply
     """
-    with fitz.open(p.path_sanitized_info) as doc:
-
+    with fitz.open(p.path_sanitized_info_tmp) as doc:
         # Build metadata dictionary from manifest fields
         metadata_dict = {}
         for field_name in ["title", "author", "isbn", "year", "name"]:
@@ -190,4 +190,4 @@ def pdf_update_metadata(p: PdfPath, ext_meta):
         else:
             doc.set_xml_metadata(create_xmp(metadata_dict))
 
-        save_tmp_mv_on_source(doc, p.path_sanitized_info, garbage=4, clean=True)
+        save_tmp_mv_on_source(doc, p.path_sanitized_info_tmp, garbage=4, clean=True)

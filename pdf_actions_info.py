@@ -29,13 +29,16 @@ def single_pdf_action_with_path(pdf_path, entry: PdfManifestEntry, sanitize_info
 @click.command()
 @click.argument("pdf_path", type=click.Path(exists=True, dir_okay=False))
 @click.option(
-    "--sanitize_info",
+    "--sanitize-info",
     is_flag=True,
     default=False,
     help="sanitize info",
 )
 def main(pdf_path: str, sanitize_info: bool) -> None:
     entry: PdfManifestEntry = PdfManifestEntry.new_empty_manifest_entry()
+    entry.author="test author"
+    entry.isbn="123456"
+    entry.title="test title"
     single_pdf_action_with_path(pdf_path, entry, sanitize_info=sanitize_info)
 
 

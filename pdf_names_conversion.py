@@ -56,9 +56,8 @@ class PdfPath:
         return self.DIR_TMPS / self.name
 
     @property
-    def path_sanitized_info(self) -> Path:
+    def path_sanitized_info_tmp(self) -> Path:
         return self.DIR_TMPM / self.name
-
 
     @property
     def path_sanitized(self) -> Path:
