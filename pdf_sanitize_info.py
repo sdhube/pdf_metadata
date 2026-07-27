@@ -2,7 +2,7 @@ import fitz
 from lxml import etree
 
 from pdf_names_conversion import PdfPath
-from pdf_sanitize import save_tmp_mv_on_source
+from pdf_actions_file import save_tmp_mv_on_source
 
 
 def del_info(p: PdfPath):
@@ -103,5 +103,4 @@ def pdf_update_metadata(p: PdfPath, ext_meta):
             doc.set_xml_metadata(update_xmp(xmp, title, author))
         else:
             doc.set_xml_metadata(create_xmp(title, author))
-        save_tmp_mv_on_source(p.path_sanitized_info)
-        doc.save("output.pdf", garbage=4)
+        save_tmp_mv_on_source(p.path_sanitized_info, garbage=4)
