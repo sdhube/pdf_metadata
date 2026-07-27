@@ -36,9 +36,9 @@ def single_pdf_action_with_path(pdf_path, entry: PdfManifestEntry, sanitize_info
 )
 def main(pdf_path: str, sanitize_info: bool) -> None:
     entry: PdfManifestEntry = PdfManifestEntry.new_empty_manifest_entry()
-    entry.author="test author"
-    entry.isbn="123456"
-    entry.title="test title"
+    entry.author = "test author"
+    entry.isbn = "123456"
+    entry.title = "test title"
     single_pdf_action_with_path(pdf_path, entry, sanitize_info=sanitize_info)
 
 
@@ -46,5 +46,6 @@ if __name__ == "__main__":
     main()
 
 
-# python pdf_actions.py /tmp/tmp80tnmer3/ml-linearized-sanitized.pdf --legacy-info
-# /bin/python pdf_actions.py  /home/sd/tmp/1-sanitized2/Concise\ Guide\ to\ Software\ Testing\ by\ Gerard\ ORegan-y2019-linearized-sanitized.pdf    --print-values
+# python pdf_actions_info.py  /home/sd/tmp/one-file/orig/socket_cpp_.pdf --sanitize-info
+# exiftool -a -G1  /tmp/metadata/socket_cpp_.pdf
+# pdfinfo /tmp/metadata/socket_cpp_.pdf

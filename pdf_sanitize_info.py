@@ -1,6 +1,7 @@
 import fitz
 from lxml import etree
 
+from logger import logger
 from pdf_actions_file import save_tmp_mv_on_source
 from pdf_names_conversion import PdfPath
 
@@ -14,6 +15,7 @@ def del_info(p: PdfPath):
         doc.del_xml_metadata()
 
         # Save with garbage collection to remove unreferenced objects
+        logger.info(f"saving pdf no info {p.path_sanitized_info_tmp}")
         doc.save(
             p.path_sanitized_info_tmp,
             garbage=4,
@@ -32,9 +34,8 @@ NS = {
 MANIFEST_TO_PDF_FIELDS = {
     "title": "title",
     "author": "author",
-    "isbn": "subject",
+    "isbn": "keywords",
     "year": "creationDate",
-    "name": "producer",
 }
 
 
@@ -88,13 +89,6 @@ def update_xmp(xmp, metadata_dict):
         if date_node is None:
             date_node = etree.SubElement(desc, "{%s}date" % NS["dc"])
         date_node.text = metadata_dict["year"]
-
-    # Update name (simple string field)
-    if "name" in metadata_dict and metadata_dict["name"]:
-        coverage_node = desc.find("dc:coverage", NS)
-        if coverage_node is None:
-            coverage_node = etree.SubElement(desc, "{%s}coverage" % NS["dc"])
-        coverage_node.text = metadata_dict["name"]
 
     return etree.tostring(root, encoding="utf-8", xml_declaration=False).decode("utf-8")
 
@@ -175,11 +169,8 @@ def pdf_update_metadata(p: PdfPath, ext_meta):
 
         # Update legacy Document Information Dictionary with all matching fields
         meta = doc.metadata
-        meta["title"] = metadata_dict.get("title", "")
-        meta["author"] = metadata_dict.get("author", "")
-        meta["subject"] = metadata_dict.get("isbn", "")
-        meta["creationDate"] = metadata_dict.get("year", "")
-        meta["producer"] = metadata_dict.get("name", "")
+        for k in MANIFEST_TO_PDF_FIELDS:
+            meta[MANIFEST_TO_PDF_FIELDS[k]] = metadata_dict.get(k, "")
         doc.set_metadata(meta)
 
         # Update XMP metadata
@@ -189,5 +180,5 @@ def pdf_update_metadata(p: PdfPath, ext_meta):
             doc.set_xml_metadata(update_xmp(xmp, metadata_dict))
         else:
             doc.set_xml_metadata(create_xmp(metadata_dict))
-
+        logger.info(f"saving pdf clean updated info {p.path_sanitized_info_tmp}")
         save_tmp_mv_on_source(doc, p.path_sanitized_info_tmp, garbage=4, clean=True)
