@@ -42,6 +42,7 @@ def main(pdf_path: str, sanitize_info: bool) -> None:
     entry.author = "test author"
     entry.isbn = "123456"
     entry.title = "test title"
+    entry.input_file = "/tmp/test.pdf"
     single_pdf_info_action_with_path(pdf_path, entry, sanitize_info=sanitize_info)
 
 
