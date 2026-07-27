@@ -9,8 +9,7 @@ from pdf_names_conversion import PdfPath
 def del_info(p: PdfPath):
     with pikepdf.open(p.path_sanitized_tmp) as doc:
         # Remove legacy Document Information dictionary
-        if doc.metadata:
-            del doc.metadata
+        doc.docinfo.clear()
 
         # Remove XMP metadata stream
         if "/Metadata" in doc.catalog:
@@ -34,10 +33,10 @@ NS = {
 # Mapping of PdfManifestEntry fields to PDF metadata keys
 # Fields that support string values in both legacy and XMP formats
 MANIFEST_TO_PDF_FIELDS = {
-    "title": "title",
-    "author": "author",
-    "isbn": "keywords",
-    "year": "creationDate",
+    "title": "/Title",
+    "author": "/Author",
+    "isbn": "/Keywords",
+    "year": "/CreationDate",
 }
 
 
@@ -170,22 +169,24 @@ def pdf_update_metadata(p: PdfPath, ext_meta):
                 metadata_dict[field_name] = value
 
         # Update legacy Document Information Dictionary with all matching fields
-        if doc.metadata is None:
-            doc.metadata = pikepdf.Dictionary()
-        
-        for k in MANIFEST_TO_PDF_FIELDS:
-            doc.metadata[f"/{MANIFEST_TO_PDF_FIELDS[k].capitalize()}"] = metadata_dict.get(k, "")
+        for field_name, pdf_key in MANIFEST_TO_PDF_FIELDS.items():
+            if field_name in metadata_dict:
+                doc.docinfo[pdf_key] = metadata_dict[field_name]
+            else:
+                doc.docinfo[pdf_key] = ""
 
         # Update XMP metadata
-        xmp = doc.get_as_stream("/Metadata").read_bytes().decode("utf-8") if "/Metadata" in doc.catalog else None
-
-        if xmp:
-            xmp_updated = update_xmp(xmp, metadata_dict)
-            doc.catalog["/Metadata"] = pikepdf.Stream(doc, xmp_updated.encode("utf-8"))
-        else:
+        try:
+            xmp_meta = doc.open_metadata()
+            xmp_str = str(xmp_meta)
+            xmp_updated = update_xmp(xmp_str, metadata_dict)
+            xmp_meta.update_from_string(xmp_updated)
+        except Exception:
+            # If no existing metadata, create new XMP
             xmp_new = create_xmp(metadata_dict)
-            doc.catalog["/Metadata"] = pikepdf.Stream(doc, xmp_new.encode("utf-8"))
-        
+            xmp_meta = doc.open_metadata()
+            xmp_meta.update_from_string(xmp_new)
+
         logger.info(f"saving pdf clean updated info {p.path_sanitized_info_tmp}")
         doc.save(
             p.path_sanitized_info_tmp,
