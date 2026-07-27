@@ -11,6 +11,31 @@ restate unrelated parts of the codebase.
 - Test: `pytest`
 - Lint/format: `ruff check .` (repo uses `.ruff_cache/` per .gitignore)
 
+## Extended token-saving config
+
+### Lock file & dependencies
+- **Strategy:** TBD (no lock file committed yet)
+- **Regenerate:** `uv lock` or `pip freeze > requirements.txt` — Copilot will use
+  this command when suggesting deps/updates, avoiding needless explanations.
+- **Protected:** `*requirements*.txt`, `uv.lock`, `pdm.lock`, `poetry.lock` — do not
+  hand-edit; regenerate only.
+
+### Module structure
+- **Main package:** `src/pdf_metadata/` or repo root (confirm when adding code)
+- Copilot will import/reference paths accordingly, avoiding guesses.
+
+### Type checking & static analysis
+- **Mypy:** Not yet enabled (add if adopting type hints)
+- **Pyright/Pylance:** No config yet
+- **Ruff rules:** Extend ruff config in pyproject.toml or ruff.toml as needed.
+
+### Pre-commit hooks
+- None configured yet. If added, document the exact commands so Copilot aligns.
+
+### Common patterns
+- Prefer functions over classes for simple utilities.
+- Avoid external dependencies unless necessary.
+
 ## Conventions
 - Match existing code style; don't reformat unrelated lines.
 - Prefer editing existing modules over creating new files unless asked.
