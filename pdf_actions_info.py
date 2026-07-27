@@ -18,7 +18,7 @@ def single_pdf_action_with_path(pdf_path, entry: PdfManifestEntry, sanitize_info
     p: PdfPath = PdfPath(pdf_path)
     if sanitize_info:
         del_info(p)
-        pdf_update_metadata(p)
+        pdf_update_metadata(p, entry)
 
 
 # --------------------------------------------------------------------------
