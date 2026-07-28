@@ -3,12 +3,12 @@ import pikepdf
 from logger import logger
 from pdf_actions_file import save_tmp_mv_on_source
 from pdf_names_conversion import PdfPath
+from PdfManifestEntry import MANIFEST_TO_PDF_FIELDS, MANIFEST_TO_XMP_FIELDS, PDFSAN_XMP_PREFIX
 
 # Custom XMP namespace for application-specific fields that have no
 # standard dc:/pdf:/xmp: equivalent (e.g. info_file). Must be registered
 # before the "pdfsan:" prefix can be used as an XMP metadata key.
 PDFSAN_XMP_NS = "https://ns.example.org/pdf-sanitizer/1.0/"
-PDFSAN_XMP_PREFIX = "pdfsan"
 pikepdf.models.PdfMetadata.register_xml_namespace(PDFSAN_XMP_NS, PDFSAN_XMP_PREFIX)
 
 
@@ -33,55 +33,9 @@ def del_info(p: PdfPath):
         )
 
 
-# Mapping of PdfManifestEntry fields to legacy Document Information Dictionary
-# keys. NOTE: isbn->/Keywords, year->/CreationDate, and info_file->/InfoFile
-# are a repurposing/extension of docinfo for this application's own use, not
-# the standard PDF/XMP meaning of those keys — so they are written straight
-# to docinfo rather than through pikepdf's XMP<->docinfo autosync (which
-# pairs /Keywords with pdf:Keywords and /CreationDate with xmp:CreateDate,
-# not with dc:identifier/dc:date, and has no mapping at all for a custom key
-# like /InfoFile).
-MANIFEST_TO_PDF_FIELDS = {
-    "title": "/Title",
-    "author": "/Author",
-    "isbn": "/Keywords",
-    "year": "/CreationDate",
-    "input_file": "/InputFile",
-}
-
-# Mapping of PdfManifestEntry fields to XMP fields. info_file has no
-# standard dc:/pdf:/xmp: equivalent, so it's stored under the custom
-# pdfsan: namespace registered above.
-MANIFEST_TO_XMP_FIELDS = {
-    "title": "dc:title",
-    "author": "dc:creator",
-    "isbn": "dc:identifier",
-    "year": "dc:date",
-    "name": "dc:coverage",
-    "input_file": f"{PDFSAN_XMP_PREFIX}:InputFile",
-}
-
-
 # ----------------------------------------------------------------------------
 # public functions
 # ----------------------------------------------------------------------------
-
-
-def get_input_file(p: PdfPath) -> str:
-    """Read the custom info_file value back out of a PDF's XMP metadata.
-
-    Args:
-        p: PdfPath object with file paths
-
-    Returns:
-        The stored info_file string, or "" if the custom field isn't
-        present (e.g. the PDF was never processed by pdf_update_metadata,
-        or info_file wasn't set on the manifest entry at the time).
-    """
-    xmp_key = MANIFEST_TO_XMP_FIELDS["input_file"]
-    with pikepdf.open(p.path_sanitized_info_tmp) as doc:
-        meta = doc.open_metadata()
-        return meta.get(xmp_key, "")
 
 
 def pdf_update_metadata(p: PdfPath, ext_meta):
