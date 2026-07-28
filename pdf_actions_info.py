@@ -4,7 +4,7 @@ import click
 
 from logger import logger
 from pdf_names_conversion import PdfPath
-from pdf_sanitize_info import del_info, pdf_update_metadata
+from pdf_sanitize_info import del_info, get_input_file, pdf_update_metadata
 from PdfManifestEntry import PdfManifestEntry
 
 # --------------------------------------------
@@ -44,6 +44,8 @@ def main(pdf_path: str, sanitize_info: bool) -> None:
     entry.title = "test title"
     entry.input_file = "/tmp/test.pdf"
     single_pdf_info_action_with_path(pdf_path, entry, sanitize_info=sanitize_info)
+    p: PdfPath = PdfPath(pdf_path)
+    print(f"input file field ={get_input_file(p)}")
 
 
 if __name__ == "__main__":

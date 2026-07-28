@@ -67,6 +67,23 @@ MANIFEST_TO_XMP_FIELDS = {
 # ----------------------------------------------------------------------------
 
 
+def get_input_file(p: PdfPath) -> str:
+    """Read the custom info_file value back out of a PDF's XMP metadata.
+
+    Args:
+        p: PdfPath object with file paths
+
+    Returns:
+        The stored info_file string, or "" if the custom field isn't
+        present (e.g. the PDF was never processed by pdf_update_metadata,
+        or info_file wasn't set on the manifest entry at the time).
+    """
+    xmp_key = MANIFEST_TO_XMP_FIELDS["input_file"]
+    with pikepdf.open(p.path_sanitized_info_tmp) as doc:
+        meta = doc.open_metadata()
+        return meta.get(xmp_key, "")
+
+
 def pdf_update_metadata(p: PdfPath, ext_meta):
     """Update PDF metadata with all matching fields from PdfManifestEntry.
 
